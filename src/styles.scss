@@ -2,3 +2,10 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+app-seasons {
+  display: inherit;
+  font-weight: 400;
+  width: calc(100% - 341px);
+  padding: 20px 50px;
+}
