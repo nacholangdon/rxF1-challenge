@@ -1,0 +1,8 @@
+<h2>Season</h2>
+<div *ngIf="season$ | async as season">
+  <h3>{{ season.season }}</h3>
+
+  <!--<label for="hero-name">season name: </label>-->
+  <!--<input type="text" id="hero-name" [(ngModel)]="season.name" placeholder="name"/>-->
+  <button type="button" (click)="gotoSeasons(season)">Back</button>
+</div>

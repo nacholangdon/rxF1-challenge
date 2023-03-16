@@ -35,4 +35,8 @@ export class F1Service {
     );
   }
 
+  getSeason(year: string): Observable<any> {
+    return this.httpClient.get<any>(`${this.API_URL}season${year}${this.RESPONSE_TYPE}`);
+  }
+
 }
