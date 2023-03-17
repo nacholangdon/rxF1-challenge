@@ -12,18 +12,17 @@ import { NavigationComponent } from './app/components/navigation/navigation.comp
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'seasons',
+    pathMatch: 'full'
+  },
+  {
     path: 'seasons',
     loadComponent: () => import('./app/components/seasons-list/seasons-list.component').then(c => c.SeasonsListComponent),
-    providers: [
-      { provide: F1Service, useClass: F1Service },
-    ]
   },
   {
     path: 'season/:year',
     loadComponent: () => import('./app/components/season-detail/season-detail.component').then(c => c.SeasonDetailComponent),
-    providers: [
-      { provide: F1Service, useClass: F1Service },
-    ]
   }
 ];
 

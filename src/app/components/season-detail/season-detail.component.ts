@@ -1,11 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { AsyncPipe, NgIf } from '@angular/common';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { AsyncPipe, DatePipe, JsonPipe, NgIf } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 
-import { Observable, map, switchMap } from 'rxjs';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
 
-import { RaceTable } from 'src/app/models/race-table';
+import { Observable, combineLatest, map, switchMap, tap } from 'rxjs';
+
+import { Driver } from 'src/app/models/driver';
 
 import { F1Service } from 'src/app/services/f1.service';
 
@@ -14,30 +16,37 @@ import { F1Service } from 'src/app/services/f1.service';
   templateUrl: './season-detail.component.html',
   styleUrls: ['./season-detail.component.scss'],
   standalone: true,
-  imports: [NgIf, AsyncPipe, FormsModule]
+  imports: [NgIf, DatePipe, JsonPipe, AsyncPipe, RouterLink, MatTableModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SeasonDetailComponent implements OnInit {
-
-  season$!: Observable<RaceTable>;
+export class SeasonDetailComponent {
 
   private readonly _router = inject(Router);
   private readonly _service = inject(F1Service);
   private readonly _route = inject(ActivatedRoute);
 
-  ngOnInit() {
-    this.season$ = this._route.paramMap.pipe(
-      switchMap((params: ParamMap) =>
-        this._service.getSeason(params.get('year')!).pipe(map(season => season.RaceTable))
-      )
-    );
-  }
+  public displayedDriversColumns: string[] = ['name'];
+  public displayedRacesColumns: string[] = ['round', 'raceName', 'date'];
 
-  gotoSeasons(season: RaceTable) {
-    const seasonId = season ? season.season : null;
-    // Pass along the hero id if available
-    // so that the HeroList component can select that hero.
-    // Include a junk 'foo' property for fun.
-    this._router.navigate(['/seasons', { id: seasonId, foo: 'foo' }]);
+  private season$: Observable<any> = this._route.paramMap.pipe(
+    switchMap((params: ParamMap) => {
+      return this._service.getSeason(params.get('year')!);
+    })
+  );
+
+  private drivers$: Observable<Driver[]> = this._route.paramMap.pipe(
+    switchMap((params: ParamMap) => {
+      return this._service.getDrivers(params.get('year')!).pipe(tap(res => console.log('drivers', res)));
+    })
+  );
+
+  public vm$: Observable<any> = combineLatest([this.season$, this.drivers$]).pipe(
+    map(([season, drivers]) => ({ races: season, drivers })),
+    tap(res => console.log('vm$', res))
+  );
+
+  goToSeasons() {
+    this._router.navigate(['/seasons']);
   }
 
 }

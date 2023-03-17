@@ -1,7 +1,13 @@
 import { Circuit } from "./circuit";
+import { Qualifying } from "./qualifying";
 
 export interface Race {
   Circuit: Circuit,
+  FirstPractice: Qualifying,
+  Qualifying: Qualifying,
+  SecondPractice: Qualifying,
+  ThirdPractice: Qualifying,
+  Sprint?: Qualifying,
   date: string,
   raceName: string,
   round: string,

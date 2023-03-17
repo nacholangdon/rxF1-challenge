@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, forkJoin, map } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, tap } from 'rxjs';
 
-import { MRData } from '../models/mr-data';
+import { Race } from '../models/race';
+import { Driver } from '../models/driver';
+import { RaceTable } from '../models/race-table';
+import { ApiResponse } from '../models/api-response';
 import { SeasonsResponse } from '../models/seasons-response';
 
 @Injectable({
@@ -15,28 +18,38 @@ export class F1Service {
   private SEASONS = [2018,2019,2020,2021,2022];
   private RESPONSE_TYPE = '.json';
 
+  private _seasonsSubject: BehaviorSubject<SeasonsResponse> = new BehaviorSubject({} as SeasonsResponse);
+  public readonly storedSeasons$: Observable<ApiResponse<RaceTable>[]> = this._seasonsSubject.asObservable().pipe(
+    map(response => Object.values(response))
+  );
+
   constructor(private httpClient: HttpClient) { }
 
-  getSeasons(): Observable<any> {
+  getSeasons(): Observable<SeasonsResponse> {
     const requests = {};
     this.SEASONS.forEach((season: number) => {
-      Object.assign(requests, {[season]: this.httpClient.get<any>(`${this.API_URL}${season}${this.RESPONSE_TYPE}`)});
+      Object.assign(requests, {[season]: this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}${this.RESPONSE_TYPE}`)});
     })
+    // Do I need to store the response?
     return forkJoin(requests).pipe(
-      map((response: SeasonsResponse) => {
-        const array: { year: string, response: MRData }[] = [];
-
-        for (const [key, value] of Object.entries(response)) {
-          array.push({ year: key, response: value.MRData});
-        }
-
-        return array;
+      tap((response: SeasonsResponse) => {
+        this._seasonsSubject.next(response);
       })
     );
   }
 
-  getSeason(year: string): Observable<any> {
-    return this.httpClient.get<any>(`${this.API_URL}season${year}${this.RESPONSE_TYPE}`);
+  getDrivers(season: string): Observable<Driver[]> {
+    return this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}/drivers${this.RESPONSE_TYPE}`).pipe(
+      map((response: any) => response.MRData['DriverTable'].Drivers),
+    );
+  }
+
+  getSeason(year: string): Observable<Race[]> {
+    return this.storedSeasons$.pipe(
+      map((response: ApiResponse<RaceTable>[]) => {
+        const season = response.find(season => season.MRData['RaceTable'].season === year);
+        return season?.MRData['RaceTable'].Races as Race[];
+      }));
   }
 
 }
