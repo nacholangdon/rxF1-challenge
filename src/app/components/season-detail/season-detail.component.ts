@@ -36,7 +36,7 @@ export class SeasonDetailComponent {
 
   private drivers$: Observable<Driver[]> = this._route.paramMap.pipe(
     switchMap((params: ParamMap) => {
-      return this._service.getDrivers(params.get('year')!).pipe(tap(res => console.log('drivers', res)));
+      return this._service.getDriversPerSeason(params.get('year')!).pipe(tap(res => console.log('drivers', res)));
     })
   );
 

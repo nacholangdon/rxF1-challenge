@@ -6,8 +6,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { environment } from './environments/environment';
 
-import { F1Service } from './app/services/f1.service';
-
 import { NavigationComponent } from './app/components/navigation/navigation.component';
 
 const routes: Routes = [
@@ -23,6 +21,10 @@ const routes: Routes = [
   {
     path: 'season/:year',
     loadComponent: () => import('./app/components/season-detail/season-detail.component').then(c => c.SeasonDetailComponent),
+  },
+  {
+    path: 'race/:round/:year',
+    loadComponent: () => import('./app/components/race-detail/race-detail.component').then(c => c.RaceDetailComponent),
   }
 ];
 

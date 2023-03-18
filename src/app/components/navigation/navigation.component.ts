@@ -25,7 +25,7 @@ import { F1Service } from 'src/app/services/f1.service';
 })
 export class NavigationComponent {
 
-  private readonly _f1Service = inject(F1Service);
+  private readonly _service = inject(F1Service);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
   public isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -33,6 +33,6 @@ export class NavigationComponent {
       map(result => result.matches),
       shareReplay()
     );
-  public getData$: Observable<SeasonsResponse> = this._f1Service.getSeasons();
+  public getData$: Observable<SeasonsResponse> = this._service.getSeasons();
 
 }

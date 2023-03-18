@@ -7,6 +7,7 @@ import { Race } from '../models/race';
 import { Driver } from '../models/driver';
 import { RaceTable } from '../models/race-table';
 import { ApiResponse } from '../models/api-response';
+import { StandingsTable } from '../models/standings-table';
 import { SeasonsResponse } from '../models/seasons-response';
 
 @Injectable({
@@ -38,9 +39,19 @@ export class F1Service {
     );
   }
 
-  getDrivers(season: string): Observable<Driver[]> {
+  getDriversPerSeason(season: string): Observable<Driver[]> {
     return this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}/drivers${this.RESPONSE_TYPE}`).pipe(
       map((response: any) => response.MRData['DriverTable'].Drivers),
+    );
+  }
+
+  getDriverStandingsPerSeason(season: string, round: string): Observable<Driver[]> {
+    // http://ergast.com/api/f1/{{year}}/{{round}}/driverStandings
+    return this.httpClient.get<ApiResponse<StandingsTable>>(`${this.API_URL}${season}/${round}/driverStandings${this.RESPONSE_TYPE}`).pipe(
+      map((response: any) => {
+        debugger;
+        return response.MRData['StandingsTable'].Drivers;
+      })
     );
   }
 
@@ -51,5 +62,7 @@ export class F1Service {
         return season?.MRData['RaceTable'].Races as Race[];
       }));
   }
+
+
 
 }

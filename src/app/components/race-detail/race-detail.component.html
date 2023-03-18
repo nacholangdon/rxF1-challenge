@@ -1,0 +1,7 @@
+<div *ngIf="vm$ | async as vm">
+  <h2>Race  ({{ vm.seasons.season[0].season }})</h2>
+  <h3>Driver Standings</h3>
+    muestro estadisticas carrera
+
+  <button mat-flat-button color="primary" type="button" (click)="goToSeason(vm.seasons[0].season)">Go Back</button>
+</div>
