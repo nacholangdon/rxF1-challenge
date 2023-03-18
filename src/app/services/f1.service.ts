@@ -9,6 +9,7 @@ import { RaceTable } from '../models/race-table';
 import { ApiResponse } from '../models/api-response';
 import { StandingsTable } from '../models/standings-table';
 import { SeasonsResponse } from '../models/seasons-response';
+import { DriverStandings } from '../models/driver-standings';
 
 @Injectable({
   providedIn: 'root'
@@ -45,12 +46,10 @@ export class F1Service {
     );
   }
 
-  getDriverStandingsPerSeason(season: string, round: string): Observable<Driver[]> {
-    // http://ergast.com/api/f1/{{year}}/{{round}}/driverStandings
+  getDriverStandingsPerSeason(season: string, round: string): Observable<DriverStandings[]> {
     return this.httpClient.get<ApiResponse<StandingsTable>>(`${this.API_URL}${season}/${round}/driverStandings${this.RESPONSE_TYPE}`).pipe(
-      map((response: any) => {
-        debugger;
-        return response.MRData['StandingsTable'].Drivers;
+      map((response: ApiResponse<StandingsTable>) => {
+        return response.MRData['StandingsTable'].StandingsLists[0].DriverStandings as DriverStandings[];
       })
     );
   }

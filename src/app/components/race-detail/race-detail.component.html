@@ -1,7 +1,38 @@
 <div *ngIf="vm$ | async as vm">
-  <h2>Race  ({{ vm.seasons.season[0].season }})</h2>
+  <h2>{{ vm.race.raceName }} - {{ vm.race.season }}</h2>
   <h3>Driver Standings</h3>
-    muestro estadisticas carrera
 
-  <button mat-flat-button color="primary" type="button" (click)="goToSeason(vm.seasons[0].season)">Go Back</button>
+  <div style="display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 30px;">
+    <div style="width: 48%">
+      <table mat-table [dataSource]="vm.driverStandings" class="mat-elevation-z8" *ngIf="vm.driverStandings?.length; else showDriversError">
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef>Position</th>
+          <td mat-cell *matCellDef="let item">{{ item.position }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="number">
+          <th mat-header-cell *matHeaderCellDef>Number</th>
+          <td mat-cell *matCellDef="let item">{{ item.Driver.permanentNumber }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let item">{{ item.Driver.givenName }} {{ item.Driver.familyName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="constructor">
+          <th mat-header-cell *matHeaderCellDef>Constructor</th>
+          <td mat-cell *matCellDef="let item">{{ item.Constructors[0].name }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      <ng-template #showDriversError>
+        There are no drivers
+      </ng-template>
+    </div>
+  </div>
+
+  <button mat-flat-button color="primary" type="button" (click)="goBack()">Go Back</button>
 </div>

@@ -1,5 +1,5 @@
 <div *ngIf="vm$ | async as vm">
-  <h2>Season {{ vm.races[0].season }}!</h2>
+  <h2>Season {{ vm.races[0].season }}</h2>
 
   <div style="display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 30px;">
     <div style="width: 48%">
@@ -45,5 +45,5 @@
     </div>
   </div>
 
-  <button mat-flat-button color="primary" type="button" (click)="goToSeasons()">Go Back</button>
+  <button mat-flat-button color="primary" type="button" (click)="goBack()">Go Back</button>
 </div>
