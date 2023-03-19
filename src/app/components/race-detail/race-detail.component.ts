@@ -5,7 +5,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 
-import { Observable, combineLatest, map, switchMap, tap } from 'rxjs';
+import { Observable, combineLatest, map, of, switchMap, tap } from 'rxjs';
 
 import { DriverStandings } from 'src/app/models/driver-standings';
 
@@ -26,26 +26,28 @@ export class RaceDetailComponent {
 
   public season: number | undefined;
   public displayedColumns: string[] = ['position', 'number', 'name', 'constructor'];
+  public displayedBonusColumns: string[] = ['status', 'count'];
 
   private _driverStandings$: Observable<DriverStandings[]> = this._route.paramMap.pipe(
-    switchMap((params: ParamMap) => {
-      return this._service.getDriverStandingsPerSeason(params.get('year')!, params.get('round')!);
-    })
+    switchMap((params: ParamMap) =>
+      this._service.getDriverStandingsPerSeason(params.get('year')!, params.get('round')!)
+    )
   );
 
   private _race$: Observable<any> = this._route.paramMap.pipe(
-    switchMap((params: ParamMap) => {
-      return this._service.getSeason(params.get('year')!).pipe(
-        map(results => {
-          return results.find(race => race.round === params.get('round'));
-        })
-      );
-    })
+    switchMap((params: ParamMap) =>
+      this._service.getSeason(params.get('year')!).pipe(map(results => results.find(race => race.round === params.get('round'))))
+    )
   );
 
-  public vm$ = combineLatest([this._race$, this._driverStandings$]).pipe(
-    map(([race, driverStandings]) => ({ race, driverStandings })),
-    tap(res => console.log('vm$', res))
+  private _bonus$: Observable<any> = this._route.paramMap.pipe(
+    switchMap((params: ParamMap) =>
+      this._service.getFinishingStatusPerRace(params.get('year')!, params.get('round')!)
+    )
+  );
+
+  public vm$ = combineLatest([this._race$, this._driverStandings$, this._bonus$]).pipe(
+    map(([race, driverStandings, bonus]) => ({ race, driverStandings, bonus }))
   );
 
   public goBack(): void {

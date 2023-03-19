@@ -1,4 +1,4 @@
-import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AsyncPipe, DatePipe, JsonPipe, NgIf, Location } from '@angular/common';
 
@@ -10,19 +10,21 @@ import { Observable, combineLatest, map, switchMap } from 'rxjs';
 import { Driver } from 'src/app/models/driver';
 
 import { F1Service } from 'src/app/services/f1.service';
+import { Race } from 'src/app/models/race';
 
 @Component({
   selector: 'app-season-detail',
   templateUrl: './season-detail.component.html',
   styleUrls: ['./season-detail.component.scss'],
   standalone: true,
-  imports: [NgIf, DatePipe, JsonPipe, AsyncPipe, RouterLink, MatTableModule, MatButtonModule],
+  imports: [NgIf, DatePipe, JsonPipe, AsyncPipe, MatTableModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SeasonDetailComponent {
 
   private readonly _service = inject(F1Service);
   private readonly _location = inject(Location);
+  private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
 
   public displayedDriversColumns: string[] = ['name'];
@@ -39,6 +41,10 @@ export class SeasonDetailComponent {
   public vm$: Observable<any> = combineLatest([this.season$, this.drivers$]).pipe(
     map(([season, drivers]) => ({ races: season, drivers }))
   );
+
+  public onRaceClicked(race: Race, year: string): void {
+    this._router.navigate(['/race', race.round, year]);
+  }
 
   public goBack(): void {
     this._location.back();

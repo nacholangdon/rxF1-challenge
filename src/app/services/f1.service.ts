@@ -7,9 +7,11 @@ import { Race } from '../models/race';
 import { Driver } from '../models/driver';
 import { RaceTable } from '../models/race-table';
 import { ApiResponse } from '../models/api-response';
+import { StatusTable } from '../models/status-table';
 import { StandingsTable } from '../models/standings-table';
 import { SeasonsResponse } from '../models/seasons-response';
 import { DriverStandings } from '../models/driver-standings';
+import { Status } from '../models/status';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +29,7 @@ export class F1Service {
 
   constructor(private httpClient: HttpClient) { }
 
-  getSeasons(): Observable<SeasonsResponse> {
+  public getSeasons(): Observable<SeasonsResponse> {
     const requests = {};
     this.SEASONS.forEach((season: number) => {
       Object.assign(requests, {[season]: this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}${this.RESPONSE_TYPE}`)});
@@ -40,13 +42,13 @@ export class F1Service {
     );
   }
 
-  getDriversPerSeason(season: string): Observable<Driver[]> {
+  public getDriversPerSeason(season: string): Observable<Driver[]> {
     return this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}/drivers${this.RESPONSE_TYPE}`).pipe(
       map((response: any) => response.MRData['DriverTable'].Drivers),
     );
   }
 
-  getDriverStandingsPerSeason(season: string, round: string): Observable<DriverStandings[]> {
+  public getDriverStandingsPerSeason(season: string, round: string): Observable<DriverStandings[]> {
     return this.httpClient.get<ApiResponse<StandingsTable>>(`${this.API_URL}${season}/${round}/driverStandings${this.RESPONSE_TYPE}`).pipe(
       map((response: ApiResponse<StandingsTable>) => {
         return response.MRData['StandingsTable'].StandingsLists[0].DriverStandings as DriverStandings[];
@@ -54,7 +56,15 @@ export class F1Service {
     );
   }
 
-  getSeason(year: string): Observable<Race[]> {
+  public getFinishingStatusPerRace(season: string, round: string): Observable<Status[]> {
+    return this.httpClient.get<ApiResponse<StatusTable>>(`${this.API_URL}${season}/${round}/status${this.RESPONSE_TYPE}`).pipe(
+      map((response: ApiResponse<StatusTable>) => {
+        return response.MRData['StatusTable'].Status;
+      })
+    );
+  }
+
+  public getSeason(year: string): Observable<Race[]> {
     return this.storedSeasons$.pipe(
       map((response: ApiResponse<RaceTable>[]) => {
         const season = response.find(season => season.MRData['RaceTable'].season === year);

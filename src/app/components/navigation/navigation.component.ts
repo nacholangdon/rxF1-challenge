@@ -14,13 +14,14 @@ import { map, shareReplay } from 'rxjs/operators';
 import { SeasonsResponse } from 'src/app/models/seasons-response';
 
 import { F1Service } from 'src/app/services/f1.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
   selector: 'app-navigation',
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss'],
-  imports: [ RouterLinkWithHref, RouterLinkActive, AsyncPipe, NgIf, MatSidenavModule, MatToolbarModule, MatIconModule, RouterOutlet, MatListModule],
+  imports: [ RouterLinkWithHref, RouterLinkActive, AsyncPipe, NgIf, MatSidenavModule, MatToolbarModule, MatIconModule, RouterOutlet, MatListModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavigationComponent {

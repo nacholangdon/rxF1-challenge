@@ -1,4 +1,4 @@
-import { RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AsyncPipe, JsonPipe, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
@@ -15,20 +15,21 @@ import { RaceTable } from 'src/app/models/race-table';
   selector: 'app-seasons-list',
   templateUrl: './seasons-list.component.html',
   styleUrls: ['./seasons-list.component.scss'],
-  imports: [ NgIf, JsonPipe, AsyncPipe, RouterLink, MatTableModule ],
+  imports: [ NgIf, JsonPipe, AsyncPipe, RouterModule, MatTableModule ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SeasonsListComponent {
 
+  private readonly _router = inject(Router);
   private readonly _f1Service = inject(F1Service);
 
   public displayedColumns: string[] = ['year'];
   public seasons$: Observable<string[]> = this._f1Service.storedSeasons$.pipe(
-    map((response: ApiResponse<RaceTable>[]) => {
-      return response.map((season: ApiResponse<RaceTable>) => {
-        return season.MRData['RaceTable'].season;
-      });
-    })
+    map((response: ApiResponse<RaceTable>[]) => response.map((season: ApiResponse<RaceTable>) => season.MRData['RaceTable'].season))
   );
+
+  public onRowClicked(year: string): void {
+    this._router.navigate(['/season', year]);
+  }
 
 }
