@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { BehaviorSubject, Observable, forkJoin, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, delay, forkJoin, map, startWith, tap } from 'rxjs';
 
 import { Race } from '../models/race';
 import { Driver } from '../models/driver';
@@ -18,6 +18,8 @@ import { Status } from '../models/status';
 })
 export class F1Service {
 
+  private readonly httpClient = inject(HttpClient);
+
   private API_URL = 'http://ergast.com/api/f1/';
   private SEASONS = [2018,2019,2020,2021,2022];
   private RESPONSE_TYPE = '.json';
@@ -27,7 +29,11 @@ export class F1Service {
     map(response => Object.values(response))
   );
 
-  constructor(private httpClient: HttpClient) { }
+  private _isLoadingSeasonSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public readonly isLoadingSeason$: Observable<boolean> = this._isLoadingSeasonSubject.asObservable();
+
+  private _driversCountSubject: BehaviorSubject<number> = new BehaviorSubject(0);
+  public readonly driversCount$: Observable<number> = this._driversCountSubject.asObservable();
 
   public getSeasons(): Observable<SeasonsResponse> {
     const requests = {};
@@ -42,9 +48,16 @@ export class F1Service {
     );
   }
 
-  public getDriversPerSeason(season: string): Observable<Driver[]> {
-    return this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}/drivers${this.RESPONSE_TYPE}`).pipe(
-      map((response: any) => response.MRData['DriverTable'].Drivers),
+  public getDriversPerSeason(season: string, offset = 0, limit = 10): Observable<Driver[]> {
+    return this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}/drivers${this.RESPONSE_TYPE}?limit=${limit}&offset=${offset}`).pipe(
+      startWith({}),
+      map((response: any) => {
+        if (Object.keys(response).length === 0) {
+          return [];
+        }
+        this._driversCountSubject.next(response.MRData.total);
+        return response?.MRData?.DriverTable.Drivers;
+      }),
     );
   }
 
@@ -65,13 +78,15 @@ export class F1Service {
   }
 
   public getSeason(year: string): Observable<Race[]> {
+    this._isLoadingSeasonSubject.next(true);
+
     return this.storedSeasons$.pipe(
+      tap(() => this._isLoadingSeasonSubject.next(false)),
+      startWith([]),
       map((response: ApiResponse<RaceTable>[]) => {
         const season = response.find(season => season.MRData['RaceTable'].season === year);
         return season?.MRData['RaceTable'].Races as Race[];
       }));
   }
-
-
 
 }
