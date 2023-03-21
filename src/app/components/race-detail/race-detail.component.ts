@@ -12,6 +12,7 @@ import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs
 import { DriverStandings } from 'src/app/models/driver-standings';
 
 import { DriverStandingsParam, F1Service } from 'src/app/services/f1.service';
+import { Race } from 'src/app/models/race';
 
 @Component({
   selector: 'app-race-detail',
@@ -48,11 +49,9 @@ export class RaceDetailComponent {
     })
   );
 
-  private _race$: Observable<any> = this._route.paramMap.pipe(
+  private _race$: Observable<Race> = this._route.paramMap.pipe(
     switchMap((params: ParamMap) =>
-      this._service.getRace(params.get('year')!, params.get('round')!).pipe(map(race => {
-        return race;
-      }))
+      this._service.getRace(params.get('year')!, params.get('round')!)
     )
   );
 
