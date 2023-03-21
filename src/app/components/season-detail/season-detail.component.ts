@@ -1,6 +1,6 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AsyncPipe, DatePipe, JsonPipe, NgIf, Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,7 @@ import { F1Service, SeasonParam } from 'src/app/services/f1.service';
   imports: [NgIf, DatePipe, JsonPipe, AsyncPipe, MatTableModule, MatButtonModule, MatPaginatorModule, MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SeasonDetailComponent {
+export class SeasonDetailComponent implements OnInit {
 
   private readonly _service = inject(F1Service);
   private readonly _location = inject(Location);

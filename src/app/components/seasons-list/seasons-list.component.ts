@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { Observable, combineLatest, delay, map, startWith, tap } from 'rxjs';
+import { Observable, combineLatest, map, startWith } from 'rxjs';
 
 import { SeasonsResponse } from 'src/app/models/seasons-response';
 
