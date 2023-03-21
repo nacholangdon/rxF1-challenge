@@ -1,20 +1,22 @@
 import { Component, inject } from '@angular/core';
 import { AsyncPipe, NgIf, Location } from '@angular/common';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { Observable, combineLatest, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs';
 
 import { DriverStandings } from 'src/app/models/driver-standings';
 
-import { F1Service } from 'src/app/services/f1.service';
+import { DriverStandingsParam, F1Service } from 'src/app/services/f1.service';
 
 @Component({
   selector: 'app-race-detail',
   standalone: true,
-  imports: [AsyncPipe, NgIf, MatTableModule, MatButtonModule],
+  imports: [AsyncPipe, NgIf, MatTableModule, MatButtonModule, MatPaginatorModule, MatProgressSpinnerModule],
   templateUrl: './race-detail.component.html',
   styleUrls: ['./race-detail.component.scss']
 })
@@ -28,15 +30,29 @@ export class RaceDetailComponent {
   public displayedColumns: string[] = ['position', 'number', 'name', 'constructor'];
   public displayedBonusColumns: string[] = ['status', 'count'];
 
-  private _driverStandings$: Observable<DriverStandings[]> = this._route.paramMap.pipe(
-    switchMap((params: ParamMap) =>
-      this._service.getDriverStandingsPerSeason(params.get('year')!, params.get('round')!)
-    )
+  private _onPageChanged = new BehaviorSubject<PageEvent>({} as PageEvent);
+  public onPageChanged$ = this._onPageChanged.asObservable();
+
+  private _driverStandings$: Observable<DriverStandings[]> = combineLatest([this._route.paramMap, this.onPageChanged$]).pipe(
+    switchMap((response: [ParamMap, PageEvent]) => {
+      const params = response[0];
+      const pageEvent: PageEvent = response[1];
+      const driverStandingsParam: DriverStandingsParam = {
+        season: params.get('year')!,
+        round: params.get('round')!,
+        offset: pageEvent.pageIndex * pageEvent.pageSize || 0,
+        limit: pageEvent.pageSize || 10
+      };
+
+      return this._service.getDriverStandingsPerSeason(driverStandingsParam);
+    })
   );
 
   private _race$: Observable<any> = this._route.paramMap.pipe(
     switchMap((params: ParamMap) =>
-      this._service.getSeason(params.get('year')!).pipe(map(results => results.find(race => race.round === params.get('round'))))
+      this._service.getRace(params.get('year')!, params.get('round')!).pipe(map(race => {
+        return race;
+      }))
     )
   );
 
@@ -46,9 +62,13 @@ export class RaceDetailComponent {
     )
   );
 
-  public vm$ = combineLatest([this._race$, this._driverStandings$, this._bonus$]).pipe(
-    map(([race, driverStandings, bonus]) => ({ race, driverStandings, bonus }))
+  public vm$ = combineLatest([this._race$, this._service.isLoadingDriverStandings$, this._driverStandings$, this._service.driverStandingsCount$, this._bonus$]).pipe(
+    map(([race, isLoadingDriverStandings, driverStandings, driverStandingsCount, bonus]) => ({ race, isLoadingDriverStandings, driverStandings, driverStandingsCount, bonus })),
   );
+
+  public onDriverStandingsPageChanged(pageEvent: PageEvent): void {
+    this._onPageChanged.next(pageEvent);
+  }
 
   public goBack(): void {
     this._location. back();

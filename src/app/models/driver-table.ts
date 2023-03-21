@@ -1,3 +1,5 @@
+import { Driver } from "./driver";
+
 export interface DriverTable  {
-   DriverTable: string;
+   Drivers: Driver[]
 }

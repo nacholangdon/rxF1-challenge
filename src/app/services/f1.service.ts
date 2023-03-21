@@ -1,17 +1,21 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 
-import { BehaviorSubject, Observable, delay, forkJoin, map, startWith, tap } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, tap } from 'rxjs';
 
 import { Race } from '../models/race';
 import { Driver } from '../models/driver';
-import { RaceTable } from '../models/race-table';
-import { ApiResponse } from '../models/api-response';
-import { StatusTable } from '../models/status-table';
-import { StandingsTable } from '../models/standings-table';
+import { Status } from '../models/status';
+import { RaceResponse } from '../models/race-response';
+import { SeasonResponse } from '../models/season-response';
 import { SeasonsResponse } from '../models/seasons-response';
 import { DriverStandings } from '../models/driver-standings';
-import { Status } from '../models/status';
+import { DriversResponse } from '../models/drivers-response';
+import { DriverStandingsResponse } from '../models/driver-standings-response';
+import { FinishingStatusResponse } from '../models/finishing-status-response';
+
+export type SeasonParam = { season: string, offset: number, limit: number };
+export type DriverStandingsParam = { season: string, round: string, offset: number, limit: number };
 
 @Injectable({
   providedIn: 'root'
@@ -24,69 +28,83 @@ export class F1Service {
   private SEASONS = [2018,2019,2020,2021,2022];
   private RESPONSE_TYPE = '.json';
 
-  private _seasonsSubject: BehaviorSubject<SeasonsResponse> = new BehaviorSubject({} as SeasonsResponse);
-  public readonly storedSeasons$: Observable<ApiResponse<RaceTable>[]> = this._seasonsSubject.asObservable().pipe(
-    map(response => Object.values(response))
-  );
+  private _isLoadingSeasonsSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public readonly isLoadingSeasons$: Observable<boolean> = this._isLoadingSeasonsSubject.asObservable();
 
-  private _isLoadingSeasonSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public readonly isLoadingSeason$: Observable<boolean> = this._isLoadingSeasonSubject.asObservable();
+  private _isLoadingDriversSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public readonly isLoadingDrivers$: Observable<boolean> = this._isLoadingDriversSubject.asObservable();
+
+  private _isLoadingRacesSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public readonly isLoadingRaces$: Observable<boolean> = this._isLoadingRacesSubject.asObservable();
+
+  private _isLoadingDriverStandingsSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public readonly isLoadingDriverStandings$: Observable<boolean> = this._isLoadingDriverStandingsSubject.asObservable();
 
   private _driversCountSubject: BehaviorSubject<number> = new BehaviorSubject(0);
   public readonly driversCount$: Observable<number> = this._driversCountSubject.asObservable();
 
+  private _racesCountSubject: BehaviorSubject<number> = new BehaviorSubject(0);
+  public readonly racesCount$: Observable<number> = this._racesCountSubject.asObservable();
+
+  private _driverStandingsCountSubject: BehaviorSubject<number> = new BehaviorSubject(0);
+  public readonly driverStandingsCount$: Observable<number> = this._driverStandingsCountSubject.asObservable();
+
   public getSeasons(): Observable<SeasonsResponse> {
+    this._isLoadingSeasonsSubject.next(true);
     const requests = {};
-    this.SEASONS.forEach((season: number) => {
-      Object.assign(requests, {[season]: this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}${this.RESPONSE_TYPE}`)});
+    this.SEASONS.forEach((year: number) => {
+      Object.assign(requests, {[year]: this.httpClient.get<SeasonResponse>(`${this.API_URL}${year}${this.RESPONSE_TYPE}`)});
     })
-    // Do I need to store the response?
     return forkJoin(requests).pipe(
-      tap((response: SeasonsResponse) => {
-        this._seasonsSubject.next(response);
-      })
+      tap(() => this._isLoadingSeasonsSubject.next(false))
     );
   }
 
-  public getDriversPerSeason(season: string, offset = 0, limit = 10): Observable<Driver[]> {
-    return this.httpClient.get<ApiResponse<RaceTable>>(`${this.API_URL}${season}/drivers${this.RESPONSE_TYPE}?limit=${limit}&offset=${offset}`).pipe(
-      startWith({}),
-      map((response: any) => {
-        if (Object.keys(response).length === 0) {
-          return [];
-        }
-        this._driversCountSubject.next(response.MRData.total);
-        return response?.MRData?.DriverTable.Drivers;
+  public getRacesPerSeason(param: SeasonParam): Observable<Race[]> {
+    this._isLoadingRacesSubject.next(true);
+    return this.httpClient.get<SeasonResponse>(`${this.API_URL}${param.season}${this.RESPONSE_TYPE}?limit=${param.limit}&offset=${param.offset}`).pipe(
+      map((season: SeasonResponse) => {
+        this._isLoadingRacesSubject.next(false);
+        this._racesCountSubject.next(+season.MRData.total);
+        return season.MRData.RaceTable.Races;
+      }));
+  }
+
+  public getRace(year: string, round: string): Observable<Race> {
+    return this.httpClient.get<RaceResponse>(`${this.API_URL}${year}/${round}/results${this.RESPONSE_TYPE}`).pipe(
+      map((season: RaceResponse) => {
+        return season.MRData.RaceTable.Races[0];
+      }));
+  }
+
+  public getDriversPerSeason(params: SeasonParam): Observable<Driver[]> {
+    this._isLoadingDriversSubject.next(true);
+    return this.httpClient.get<DriversResponse>(`${this.API_URL}${params.season}/drivers${this.RESPONSE_TYPE}?limit=${params.limit}&offset=${params.offset}`).pipe(
+      map((response: DriversResponse) => {
+        this._isLoadingDriversSubject.next(false);
+        this._driversCountSubject.next(+response.MRData.total);
+        return response.MRData.DriverTable.Drivers;
       }),
     );
   }
 
-  public getDriverStandingsPerSeason(season: string, round: string): Observable<DriverStandings[]> {
-    return this.httpClient.get<ApiResponse<StandingsTable>>(`${this.API_URL}${season}/${round}/driverStandings${this.RESPONSE_TYPE}`).pipe(
-      map((response: ApiResponse<StandingsTable>) => {
-        return response.MRData['StandingsTable'].StandingsLists[0].DriverStandings as DriverStandings[];
+  public getDriverStandingsPerSeason(params: DriverStandingsParam): Observable<DriverStandings[]> {
+    this._isLoadingDriverStandingsSubject.next(true);
+    return this.httpClient.get<DriverStandingsResponse>(`${this.API_URL}${params.season}/${params.round}/driverStandings${this.RESPONSE_TYPE}?limit=${params.limit}&offset=${params.offset}`).pipe(
+      map((response: DriverStandingsResponse) => {
+        this._isLoadingDriverStandingsSubject.next(false);
+        this._driverStandingsCountSubject.next(+response.MRData.total);
+        return response.MRData.StandingsTable.StandingsLists[0].DriverStandings;
       })
     );
   }
 
   public getFinishingStatusPerRace(season: string, round: string): Observable<Status[]> {
-    return this.httpClient.get<ApiResponse<StatusTable>>(`${this.API_URL}${season}/${round}/status${this.RESPONSE_TYPE}`).pipe(
-      map((response: ApiResponse<StatusTable>) => {
-        return response.MRData['StatusTable'].Status;
+    return this.httpClient.get<FinishingStatusResponse>(`${this.API_URL}${season}/${round}/status${this.RESPONSE_TYPE}`).pipe(
+      map((response: FinishingStatusResponse) => {
+        return response.MRData.StatusTable.Status;
       })
     );
-  }
-
-  public getSeason(year: string): Observable<Race[]> {
-    this._isLoadingSeasonSubject.next(true);
-
-    return this.storedSeasons$.pipe(
-      tap(() => this._isLoadingSeasonSubject.next(false)),
-      startWith([]),
-      map((response: ApiResponse<RaceTable>[]) => {
-        const season = response.find(season => season.MRData['RaceTable'].season === year);
-        return season?.MRData['RaceTable'].Races as Race[];
-      }));
   }
 
 }

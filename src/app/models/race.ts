@@ -3,10 +3,11 @@ import { Qualifying } from "./qualifying";
 
 export interface Race {
   Circuit: Circuit,
-  FirstPractice: Qualifying,
-  Qualifying: Qualifying,
-  SecondPractice: Qualifying,
-  ThirdPractice: Qualifying,
+  FirstPractice?: Qualifying,
+  Qualifying?: Qualifying,
+  SecondPractice?: Qualifying,
+  ThirdPractice?: Qualifying,
+  Results?: Qualifying,
   Sprint?: Qualifying,
   date: string,
   raceName: string,

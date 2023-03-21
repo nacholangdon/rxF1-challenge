@@ -1,18 +1,13 @@
-<div *ngIf="(getData$ | async) as data; else loadingData" class="wrapper">
+<div class="wrapper">
   <mat-toolbar color="primary">
-    <span>RxF1 Challenge</span>
-    <button mat-flat-button [routerLink]="['/']" class="nav">
-      <mat-icon>home</mat-icon>
-      Home
-    </button>
-  </mat-toolbar>
+      <span>RxF1 Challenge</span>
+      <button mat-flat-button [routerLink]="['/']" class="nav">
+        <mat-icon>home</mat-icon>
+        Home
+      </button>
+    </mat-toolbar>
 
-  <div class="content">
-    <router-outlet></router-outlet>
-  </div>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
 </div>
-
-<ng-template #loadingData>
-  Fetching data...
-</ng-template>
-

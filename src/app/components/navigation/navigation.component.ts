@@ -5,16 +5,12 @@ import { RouterLinkActive, RouterLinkWithHref, RouterOutlet } from '@angular/rou
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-
-import { SeasonsResponse } from 'src/app/models/seasons-response';
-
-import { F1Service } from 'src/app/services/f1.service';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
@@ -26,7 +22,6 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class NavigationComponent {
 
-  private readonly _service = inject(F1Service);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
   public isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -34,6 +29,5 @@ export class NavigationComponent {
       map(result => result.matches),
       shareReplay()
     );
-  public getData$: Observable<SeasonsResponse> = this._service.getSeasons();
 
 }
