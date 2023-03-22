@@ -56,7 +56,10 @@ export class F1Service {
       Object.assign(requests, {[year]: this.httpClient.get<SeasonResponse>(`${this.API_URL}${year}${this.RESPONSE_TYPE}`)});
     })
     return forkJoin(requests).pipe(
-      tap(() => this._isLoadingSeasonsSubject.next(false))
+      tap((res) => {
+        console.log('response', res);
+        this._isLoadingSeasonsSubject.next(false);
+      })
     );
   }
 

@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, of, switchMap, tap } from 'rxjs';
 
 import { DriverStandings } from 'src/app/models/driver-standings';
 
@@ -34,6 +34,12 @@ export class RaceDetailComponent {
   private _onPageChanged = new BehaviorSubject<PageEvent>({} as PageEvent);
   public onPageChanged$ = this._onPageChanged.asObservable();
 
+  private _race$: Observable<Race> = this._route.paramMap.pipe(
+    switchMap((params: ParamMap) =>
+      this._service.getRace(params.get('year')!, params.get('round')!)
+    )
+  );
+
   private _driverStandings$: Observable<DriverStandings[]> = combineLatest([this._route.paramMap, this.onPageChanged$]).pipe(
     switchMap((response: [ParamMap, PageEvent]) => {
       const params = response[0];
@@ -49,19 +55,19 @@ export class RaceDetailComponent {
     })
   );
 
-  private _race$: Observable<Race> = this._route.paramMap.pipe(
-    switchMap((params: ParamMap) =>
-      this._service.getRace(params.get('year')!, params.get('round')!)
-    )
-  );
-
   private _bonus$: Observable<any> = this._route.paramMap.pipe(
     switchMap((params: ParamMap) =>
       this._service.getFinishingStatusPerRace(params.get('year')!, params.get('round')!)
     )
   );
 
-  public vm$ = combineLatest([this._race$, this._service.isLoadingDriverStandings$, this._driverStandings$, this._service.driverStandingsCount$, this._bonus$]).pipe(
+  public readonly vm$ = combineLatest([
+    this._race$,
+    this._service.isLoadingDriverStandings$,
+    this._driverStandings$,
+    this._service.driverStandingsCount$,
+    this._bonus$
+  ]).pipe(
     map(([race, isLoadingDriverStandings, driverStandings, driverStandingsCount, bonus]) => ({ race, isLoadingDriverStandings, driverStandings, driverStandingsCount, bonus })),
   );
 
@@ -70,7 +76,7 @@ export class RaceDetailComponent {
   }
 
   public goBack(): void {
-    this._location. back();
+    this._location.back();
   }
 
 }
