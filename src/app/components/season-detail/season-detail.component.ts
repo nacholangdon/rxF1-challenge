@@ -12,7 +12,7 @@ import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs
 import { Race } from 'src/app/models/race';
 import { Driver } from 'src/app/models/driver';
 
-import { F1Service, SeasonParam } from 'src/app/services/f1.service';
+import { F1Service, SeasonParam } from '../../services/f1.service';
 
 @Component({
   selector: 'app-season-detail',

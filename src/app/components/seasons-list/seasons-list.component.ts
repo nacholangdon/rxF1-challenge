@@ -9,7 +9,7 @@ import { Observable, combineLatest, map, startWith } from 'rxjs';
 
 import { SeasonsResponse } from 'src/app/models/seasons-response';
 
-import { F1Service } from 'src/app/services/f1.service';
+import { F1Service } from '../../services/f1.service';
 
 @Component({
   standalone: true,

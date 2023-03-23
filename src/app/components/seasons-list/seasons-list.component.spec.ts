@@ -4,11 +4,11 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
-import { F1Service } from 'src/app/services/f1.service';
-
 import { MRData } from 'src/app/models/mr-data';
 import { RaceTable } from 'src/app/models/race-table';
 import { SeasonsResponse } from 'src/app/models/seasons-response';
+
+import { F1Service } from '../../services/f1.service';
 
 import { SeasonsListComponent } from './seasons-list.component';
 
@@ -58,7 +58,7 @@ describe('SeasonsListComponent', () => {
   describe('#onRowClicked', () => {
     it('should navigate to a specific page with params', fakeAsync(() => {
       //Arrange
-      const routerSpy = spyOn((component as any)._router, 'navigate').and.callThrough();
+      const routerSpy = jest.spyOn((component as any)._router, 'navigate').mockImplementation();
       const year = '2022';
 
       // Act

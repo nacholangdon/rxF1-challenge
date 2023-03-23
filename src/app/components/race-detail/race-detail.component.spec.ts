@@ -11,7 +11,7 @@ import { Race } from 'src/app/models/race';
 import { Status } from 'src/app/models/status';
 import { DriverStandings } from 'src/app/models/driver-standings';
 
-import { DriverStandingsParam, F1Service } from 'src/app/services/f1.service';
+import { DriverStandingsParam, F1Service } from '../../services/f1.service';
 
 import { RaceDetailComponent } from './race-detail.component';
 
@@ -81,7 +81,7 @@ describe('RaceDetailComponent', () => {
   describe('#goBack', () => {
     it('should call Location.back', () => {
       //Arrange
-      const spyLocation = spyOn((component as any)._location, 'back');
+      const spyLocation = jest.spyOn((component as any)._location, 'back');
 
       // Act
       component.goBack();
