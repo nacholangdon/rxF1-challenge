@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
-import { BehaviorSubject, Observable, combineLatest, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs';
 
 import { Race } from 'src/app/models/race';
 import { Driver } from 'src/app/models/driver';

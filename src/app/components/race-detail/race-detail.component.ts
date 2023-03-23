@@ -1,18 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { AsyncPipe, NgIf, Location } from '@angular/common';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { AsyncPipe, NgIf, Location } from '@angular/common';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { BehaviorSubject, Observable, combineLatest, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs';
 
+import { Race } from 'src/app/models/race';
 import { DriverStandings } from 'src/app/models/driver-standings';
 
 import { DriverStandingsParam, F1Service } from 'src/app/services/f1.service';
-import { Race } from 'src/app/models/race';
 
 @Component({
   selector: 'app-race-detail',

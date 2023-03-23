@@ -5,18 +5,17 @@ import { DriverStandingsParam, F1Service, SeasonParam } from './f1.service';
 
 import { Race } from '../models/race';
 import { Driver } from '../models/driver';
-import { RaceTable } from '../models/race-table';
-import { RaceResponse } from '../models/race-response';
-import { SeasonResponse } from '../models/season-response';
-import { DriverTable } from '../models/driver-table';
-import { DriversResponse } from '../models/drivers-response';
-import { DriverStandingsResponse } from '../models/driver-standings-response';
-import { DriverStandings } from '../models/driver-standings';
-import { StandingsTable } from '../models/standings-table';
-import { StandingsList } from '../models/standings-list';
 import { Status } from '../models/status';
-import { FinishingStatusResponse } from '../models/finishing-status-response';
+import { RaceTable } from '../models/race-table';
+import { DriverTable } from '../models/driver-table';
 import { StatusTable } from '../models/status-table';
+import { RaceResponse } from '../models/race-response';
+import { StandingsTable } from '../models/standings-table';
+import { SeasonResponse } from '../models/season-response';
+import { DriversResponse } from '../models/drivers-response';
+import { DriverStandings } from '../models/driver-standings';
+import { DriverStandingsResponse } from '../models/driver-standings-response';
+import { FinishingStatusResponse } from '../models/finishing-status-response';
 
 describe('F1Service', () => {
   let service: F1Service;

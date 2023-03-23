@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { PageEvent } from '@angular/material/paginator';
+
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { Race } from 'src/app/models/race';
@@ -12,7 +14,6 @@ import { DriverStandings } from 'src/app/models/driver-standings';
 import { DriverStandingsParam, F1Service } from 'src/app/services/f1.service';
 
 import { RaceDetailComponent } from './race-detail.component';
-import { PageEvent } from '@angular/material/paginator';
 
 export const MockLocationService: Partial<Location> = {
   back(): void { }
