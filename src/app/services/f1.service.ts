@@ -52,15 +52,11 @@ export class F1Service {
   public getSeasons(): Observable<SeasonsResponse> {
     this._isLoadingSeasonsSubject.next(true);
     const requests = {};
+
     this.SEASONS.forEach((year: number) => {
       Object.assign(requests, {[year]: this.httpClient.get<SeasonResponse>(`${this.API_URL}${year}${this.RESPONSE_TYPE}`)});
-    })
-    return forkJoin(requests).pipe(
-      tap((res) => {
-        console.log('response', res);
-        this._isLoadingSeasonsSubject.next(false);
-      })
-    );
+    });
+    return forkJoin(requests).pipe(tap(() => this._isLoadingSeasonsSubject.next(false)));
   }
 
   public getRacesPerSeason(param: SeasonParam): Observable<Race[]> {
