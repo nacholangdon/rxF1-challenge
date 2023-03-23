@@ -11,7 +11,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Race } from 'src/app/models/race';
 import { Driver } from 'src/app/models/driver';
 
-import { F1Service, SeasonParam } from 'src/app/services/f1.service';
+import { F1Service, SeasonParam } from '../../services/f1.service';
 
 import { SeasonDetailComponent } from './season-detail.component';
 
@@ -115,7 +115,7 @@ describe('SeasonDetailComponent', () => {
   describe('#onRaceClicked', () => {
     it('should navigate to a specific page with params', fakeAsync(() => {
       //Arrange
-      const routerSpy = spyOn((component as any)._router, 'navigate').and.callThrough();
+      const routerSpy = jest.spyOn((component as any)._router, 'navigate').mockImplementation();
       const race = {
         round: '1'
       } as Race;
@@ -133,7 +133,7 @@ describe('SeasonDetailComponent', () => {
   describe('#goBack', () => {
     it('should call Location.back', () => {
       //Arrange
-      const spyLocation = spyOn((component as any)._location, 'back');
+      const spyLocation = jest.spyOn((component as any)._location, 'back');
 
       // Act
       component.goBack();

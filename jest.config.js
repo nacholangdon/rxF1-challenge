@@ -1,8 +1,4 @@
-import type { Config } from 'jest';
-
-const jestConfig: Config = {
-  // ...other options
-  moduleFileExtensions: ['ts', 'html', 'js', 'json', 'mjs'],
+module.exports = {
+  preset: 'jest-preset-angular',
+  globalSetup: 'jest-preset-angular/global-setup',
 };
-
-export default jestConfig;

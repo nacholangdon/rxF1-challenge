@@ -12,7 +12,7 @@ import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs
 import { Race } from 'src/app/models/race';
 import { DriverStandings } from 'src/app/models/driver-standings';
 
-import { DriverStandingsParam, F1Service } from 'src/app/services/f1.service';
+import { DriverStandingsParam, F1Service } from '../../services/f1.service';
 
 @Component({
   selector: 'app-race-detail',
